@@ -160,8 +160,12 @@ class StockDailyService:
             exchange_code=get_stock_exchange_code(stock_code)
             # 设置日期范围
             sorted_records = sorted(stock_daily_records, key=lambda x: x.date)
-            actual_start_date = parse_date(start_date) or sorted_records[0].date
-            actual_end_date = parse_date(end_date) or datetime.now()
+            actual_start_date = start_date if start_date is not None else sorted_records[0].date
+            actual_end_date = end_date if end_date is not None else datetime.now().date()
+            if isinstance(actual_start_date, datetime):
+                actual_start_date = actual_start_date.date()
+            if isinstance(actual_end_date, datetime):
+                actual_end_date = actual_end_date.date()
             # 从交易日历仓储获取应有的交易日
             calendar_items = await self._get_full_trade_calendar(exchange_code=exchange_code)
             trade_dates_required = {
